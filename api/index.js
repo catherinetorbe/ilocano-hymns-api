@@ -5,22 +5,23 @@ import path from "path";
 import { fileURLToPath } from "url";
 import serverless from "serverless-http";
 
-// Get current directory
+// Get current directory path
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Create Express app
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Load hymns data (use absolute path for Vercel)
+// Load the JSON file properly in ESM
 const hymnsPath = path.join(__dirname, "..", "lyrics.json");
 const hymns = JSON.parse(fs.readFileSync(hymnsPath, "utf8"));
 
 // Routes
 app.get("/", (req, res) => {
   res.json({
-    message: "🎵 Welcome to the Ilocano Hymns API!",
+    message: "🎶 Ilocano Hymns API is live!",
     availableRoutes: ["/api/hymns", "/api/hymns/:title"],
   });
 });
@@ -31,11 +32,11 @@ app.get("/api/hymns", (req, res) => {
 
 app.get("/api/hymns/:title", (req, res) => {
   const title = decodeURIComponent(req.params.title).toLowerCase();
-  const hymn = hymns.find(h => h.title.toLowerCase() === title);
+  const hymn = hymns.find((h) => h.title.toLowerCase() === title);
   if (!hymn) return res.status(404).json({ message: "Hymn not found" });
   res.json(hymn);
 });
 
-// Export for Vercel (serverless)
+// Export for Vercel serverless
 export const handler = serverless(app);
 export default app;
