@@ -1,28 +1,34 @@
 import express from "express";
 import cors from "cors";
 import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import serverless from "serverless-http";
+
+// Get current directory
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Load hymns data
-const hymns = JSON.parse(fs.readFileSync("./lyrics.json", "utf8"));
+// Load hymns data (use absolute path for Vercel)
+const hymnsPath = path.join(__dirname, "..", "lyrics.json");
+const hymns = JSON.parse(fs.readFileSync(hymnsPath, "utf8"));
 
-// Root route
+// Routes
 app.get("/", (req, res) => {
   res.json({
-    message: "Welcome to the Ilocano Hymns API 🎶",
-    routes: ["/api/hymns", "/api/hymns/:title"]
+    message: "🎵 Welcome to the Ilocano Hymns API!",
+    availableRoutes: ["/api/hymns", "/api/hymns/:title"],
   });
 });
 
-// Get all hymns
 app.get("/api/hymns", (req, res) => {
   res.json(hymns);
 });
 
-// Get hymn by title
 app.get("/api/hymns/:title", (req, res) => {
   const title = decodeURIComponent(req.params.title).toLowerCase();
   const hymn = hymns.find(h => h.title.toLowerCase() === title);
@@ -30,5 +36,6 @@ app.get("/api/hymns/:title", (req, res) => {
   res.json(hymn);
 });
 
-// Export as Vercel serverless handler
+// Export for Vercel (serverless)
+export const handler = serverless(app);
 export default app;
