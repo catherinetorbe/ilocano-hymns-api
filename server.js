@@ -1,13 +1,14 @@
-const express = require("express");
-const cors = require("cors");
+import express from "express";
+import cors from "cors";
+import fs from "fs";
+
+const hymns = JSON.parse(fs.readFileSync("./lyrics.json", "utf-8"));
+
 const app = express();
-const PORT = `https://ilocano-hymns-api.vercel.app/`;
+const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
-
-// Load hymns data
-const hymns = require("./lyrics.json");
 
 // Get all hymns
 app.get("/api/hymns", (req, res) => {
@@ -60,4 +61,6 @@ app.get("/", (req, res) => {
   `);
 });
 
-app.listen(PORT, () => console.log(`Ilocano Hymns API running on ${PORT}`));
+app.listen(PORT, () =>
+  console.log(`Ilocano Hymns API running on http://localhost:${PORT}`)
+);
